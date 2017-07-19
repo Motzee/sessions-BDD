@@ -119,23 +119,16 @@ class User {
 
         return $mdp_cuisine ;
     }
+
+//fonctions traditionnelles
     
     //connexion à une session
-    public static function connexion(string $pseudo, string $mdpPropose) {
-
-        if(isset($pseudo) && isset($mdpPropose) && $pseudo != null && $mdpPropose != null) {
-            
-            
-        }
-        //si l'utilisateur existe dans la table, on compare les mdp
-        
-        $_SESSION['pseudo'] = $pseudo ;
-        
-        
+    public function connexion() {
+        $_SESSION['pseudo'] = $this->pseudo ;
+        $_SESSION['id'] = $this->identifiant ;
     }
-    
-//fonctions traditionnelles
-
+   
+    //déconnexion de la session
     public function deconnexion() {
         $_SESSION = array();
         session_destroy();

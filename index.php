@@ -1,4 +1,6 @@
 <?php
+session_start();
+
 
 function myLoader($className) {
     $class = str_replace('\\', '/', $className) ;
@@ -18,13 +20,13 @@ echo "<h1>Créer un nouvel utilisateur</h1>" ;
 $sel = User::generationSEL() ;
 $mdpSale = User::hashageMDP("mdp", $sel) ;
 
-$user1 = new User('Personne1', "membre", $sel, $mdpSale, "email@test.com", "42 jolie rue, 00000 VILLE") ;
+$user1 = new User('Personne', "membre", $sel, $mdpSale, "", "") ;
 $db->ajouterUser($user1) ;
 
 
 //vérifier un utilisateur et son mdp
-$pseudo = "Personne1" ;
-$mdp_propose = "mdpx" ;
+$pseudo = "Personne" ;
+$mdp_propose = "mdp" ;
 
 $erreur = "Identifiant ou mot de passe erroné" ;
 
@@ -37,7 +39,14 @@ if($db->existeMembre($pseudo) == NULL) {
     
     $mdpProposeSale = User::hashageMDP($mdp_propose, $sel) ;
 
-    echo $mdpAttendu == $mdpProposeSale ? "personne à connecter" : $erreur ;
+    if($mdpAttendu != $mdpProposeSale) {
+        echo $erreur ;
+    } else {
+        $user = $userSouhaite ;
+        $user->connexion() ;
+        echo "<p>pseudo : ".$_SESSION['pseudo']."</p>" ;
+        echo "<p>id : ".$_SESSION['id']."</p>" ;
+    }
     
 }
 
@@ -62,7 +71,10 @@ $user3->setStatut('modo') ;
 $user3->setAdresse('15 rue des gens heureux, 00000 JOLIEVILLE') ;
 $db->modifierUser($user3) ;
 
-
+/*
 //supprimer un utilisateur
 echo "<h1>Supprimer un utilisateur</h1>" ;
-$db->supprimerUser("TopMembre") ;
+$db->supprimerUser("Personne1") ;
+ * */
+
+$user->deconnexion() ;

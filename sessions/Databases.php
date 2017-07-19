@@ -30,15 +30,16 @@ class Databases {
         $adresse = $user->getAdresse() ;
     
         $req = $this->bdd->prepare('INSERT INTO membres(pseudo, statut, date_inscript, sel_mdp, hash_mdp, email, adresse) VALUES(:pseudo, :statut, :date_inscript, :sel_mdp, :hash_mdp, :email, :adresse)');
-$req->execute(array(
-            'pseudo' => $pseudo,
-            'statut' => $statut,
-            'date_inscript' => $dateInscription,
-            'sel_mdp' => $sel_hash,
-            'hash_mdp' => $mdp_hash,
-            'email' => $email,
-            'adresse' => $adresse        
-	));
+        //sécurisation des variables (mais qui ne fonctionne pas)
+        $req->bindParam('pseudo', $pseudo, \PDO::PARAM_INT);
+        $req->bindParam('statut', $statut, \PDO::PARAM_STR);
+        $req->bindParam('date_inscript', $dateInscription, \PDO::PARAM_INT);
+        $req->bindParam('sel_mdp', $sel_hash, \PDO::PARAM_STR);
+        $req->bindParam('hash_mdp', $mdp_hash, \PDO::PARAM_STR);
+        $req->bindParam('email', $email, \PDO::PARAM_STR);
+        $req->bindParam('adresse', $adresse, \PDO::PARAM_STR);
+        //On exécute la requête préparée
+        $req->execute();
 
         //rajouter l'id ainsi créé à l'objet $user
         $nbId = $this->bdd->lastInsertId();
