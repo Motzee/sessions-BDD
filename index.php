@@ -19,9 +19,15 @@ $db = new Databases() ;
 echo "<h1>Créer un nouvel utilisateur</h1>" ;
 $sel = User::generationSEL() ;
 $mdpSale = User::hashageMDP("mdp", $sel) ;
+$lePseudo = "Personne" ;
 
-$user1 = new User('Personne', "membre", $sel, $mdpSale, "", "") ;
-$db->ajouterUser($user1) ;
+if(!$db->existeMembre($lePseudo)) {
+    $user1 = new User('Personne', "membre", $sel, $mdpSale, "", "") ;
+    $db->ajouterUser($user1) ;
+} else {
+    echo "Ce pseudo est déjà utilisé" ;
+}
+
 
 
 //vérifier un utilisateur et son mdp
