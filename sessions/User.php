@@ -105,10 +105,8 @@ class User {
  
     //génération d'un sel unique pour un utilisateur
     public static function generationSEL():string {
-        $longueur = rand(10, 15) ;
-        $plage = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789' ;
-        $plagePreparee = str_shuffle($plage) ;
-        $sel = substr($plagePreparee, 0, $longueur) ;
+        $longueur = rand() ;
+        $sel = hash('sha256', $longueur) ;
         return $sel;
     }
     
