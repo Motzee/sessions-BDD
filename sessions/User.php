@@ -1,6 +1,6 @@
 <?php
 
-namespace sessions;
+namespace sessions ;
 
 class User {
     

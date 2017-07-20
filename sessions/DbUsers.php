@@ -1,8 +1,8 @@
 <?php
 
-namespace sessions;
+namespace sessions ;
 
-class Databases {
+class DbUsers {
     
     protected $bdd ;
     
@@ -43,15 +43,20 @@ class Databases {
         $user->setIdentifiant($nbId) ;
 
         $req->closeCursor();
+        
         return $user ;
     }
     
+
+    
     //READ
-    public function existeMembre(string $pseudo):bool {
+    public function existeUser(string $pseudo):bool {
         $reponse = $this->bdd->prepare('SELECT * FROM membres WHERE pseudo = ? ');
         $reponse->execute(array($pseudo));
         
         $donnees = $reponse->fetch() ;
+        
+        $reponse->closeCursor();
         
         return $donnees == false ? false : true ;
     }
@@ -69,14 +74,25 @@ class Databases {
         return $user ;
     }
     
-    public function recupererUser(string $pseudo):User {
-
-        $reponse = $this->bdd->prepare('SELECT * FROM membres WHERE pseudo = ? ');
+    public function recupererID(string $pseudo):int {
+        $reponse = $this->bdd->prepare('SELECT id_membre FROM membres WHERE pseudo = ? ');
         $reponse->execute(array($pseudo));
 
         $donnees = $reponse->fetch() ;
+      
+        $reponse->closeCursor();
         
-        $user = $this->creerUser($pseudo, $donnees) ;
+        return $donnees['id_membre'] ;
+    }
+    
+    public function recupererUser(int $id):User {
+
+        $reponse = $this->bdd->prepare('SELECT * FROM membres WHERE id_membre = ? ');
+        $reponse->execute(array($id));
+
+        $donnees = $reponse->fetch() ;
+        
+        $user = $this->creerUser($donnees['pseudo'], $donnees) ;
       
         $reponse->closeCursor();
         
@@ -85,7 +101,7 @@ class Databases {
     }
     
     public function loginUser(string $pseudo, string $mdpPropose) {
-        if(!$this->existeMembre($pseudo)) {
+        if(!$this->existeUser($pseudo)) {
             return false ;
         } else {
             $reponse = $this->bdd->prepare('SELECT sel_mdp FROM membres WHERE pseudo = ? ');
@@ -137,8 +153,10 @@ class Databases {
             $reponse = $this->bdd->prepare('DELETE FROM membres WHERE pseudo = ? ');
             
             if($reponse->execute(array($pseudo)) && $reponse->rowCount() == 1) {
+                $reponse->closeCursor();
                 return true;
             } else {
+                $reponse->closeCursor();
                 return false ;
             }
     }
