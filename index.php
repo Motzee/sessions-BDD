@@ -24,7 +24,7 @@ if(isset($_SESSION['id']) && $_SESSION['id'] != NULL) {
 echo "<h1>Créer un nouvel utilisateur</h1>" ;
 $sel = sessions\User::generationSEL() ;
 $mdpSale = sessions\User::hashageMDP("mdp", $sel) ;
-$lePseudo = "Personne Dernière" ;
+$lePseudo = "People5" ;
 
 if(!$db->existeUser($lePseudo)) {
     $user1 = new sessions\User($lePseudo, "membre", $sel, $mdpSale, "", "") ;
@@ -35,7 +35,7 @@ if(!$db->existeUser($lePseudo)) {
 
 
 //vérifier un utilisateur et son mdp
-$pseudo = "PersonneX";
+$pseudo = "People5";
 $mdp_propose = "mdp" ;
 
 if(!$db->loginUser($pseudo, $mdp_propose)) {
@@ -78,10 +78,21 @@ echo $db->modifierUser($user3) ? "Modification effectuée" : "Une erreur de modi
 //supprimer un utilisateur
 echo "<h1>Supprimer un utilisateur</h1>" ;
 
-echo $db->supprimerUser("MembreLeRetourBis") ? "Membre supprimé" : "Problème de suppression" ;
+$userToSuppr = "MembreLeRetourBis" ;
+if($db->existeUser($userToSuppr)) {
+    $iduserXXX = $db->recupererID($userToSuppr) ;
+    echo $db->supprimerUser($iduserXXX) ? "Membre supprimé" : "Problème de suppression" ; 
+} else {
+    echo "Cet utilisateur n'a pu être trouvé/e dans la base de données" ;
+}
 
+
+
+//déconnecter l'user :
 
 $user->deconnexion() ;
+
+
 
 $pseudo1 = "PersonnetX" ;
 

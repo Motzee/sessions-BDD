@@ -26,15 +26,15 @@ class DbUsers {
         $user->getStatut() ;
     
         $req = $this->bdd->prepare('INSERT INTO membres(pseudo, statut, date_inscript, sel_mdp, hash_mdp, email, adresse) VALUES(:pseudo, :statut, :date_inscript, :sel_mdp, :hash_mdp, :email, :adresse)');
-        //sécurisation des variables (mais qui ne fonctionne pas) - attention à bindParam et bindValue
-        $req->bindValue('pseudo', $user->getPseudo(), \PDO::PARAM_STR);
-        $req->bindValue('statut', $user->getStatut(), \PDO::PARAM_STR);
-        $req->bindValue('date_inscript', $dateInscription, \PDO::PARAM_INT);
-        $req->bindValue('sel_mdp', $user->getSel_hash(), \PDO::PARAM_STR);
-        $req->bindValue('hash_mdp', $user->getMdp_hash(), \PDO::PARAM_STR);
-        $req->bindValue('email', $user->getEmail(), \PDO::PARAM_STR);
-        $req->bindValue('adresse', $user->getAdresse(), \PDO::PARAM_STR);
-        //On exécute la requête préparée
+        
+        $req->bindValue('pseudo', $user->getPseudo());
+        $req->bindValue('statut', $user->getStatut());
+        $req->bindValue('date_inscript', $dateInscription);
+        $req->bindValue('sel_mdp', $user->getSel_hash());
+        $req->bindValue('hash_mdp', $user->getMdp_hash());
+        $req->bindValue('email', $user->getEmail());
+        $req->bindValue('adresse', $user->getAdresse());
+        
         $req->execute();
 
         //rajouter l'id ainsi créé à l'objet $user
@@ -50,9 +50,16 @@ class DbUsers {
 
     
     //READ
-    public function existeUser(string $pseudo):bool {
-        $reponse = $this->bdd->prepare('SELECT * FROM membres WHERE pseudo = ? ');
-        $reponse->execute(array($pseudo));
+    public function existeUser($personne):bool {
+        if (is_int($personne)) {
+            $reponse = $this->bdd->prepare('SELECT * FROM membres WHERE id_membre = ? ');
+        } elseif(is_string($personne)) {
+            $reponse = $this->bdd->prepare('SELECT * FROM membres WHERE pseudo = ? ');
+        } else {
+            return false ;
+        }
+        
+        $reponse->execute(array($personne));
         
         $donnees = $reponse->fetch() ;
         
@@ -61,8 +68,9 @@ class DbUsers {
         return $donnees == false ? false : true ;
     }
     
-    protected function creerUser($pseudo, array $donnees) {
+    protected function creerUser(array $donnees):User {
         $identifiant = $donnees['id_membre'] ;
+        $pseudo = $donnees['pseudo'] ;
         $statut = $donnees['statut'] ;
         $dateInscription = $donnees['date_inscript'] ;
         $sel_hash = $donnees['sel_mdp'] ;
@@ -92,7 +100,7 @@ class DbUsers {
 
         $donnees = $reponse->fetch() ;
         
-        $user = $this->creerUser($donnees['pseudo'], $donnees) ;
+        $user = $this->creerUser($donnees) ;
       
         $reponse->closeCursor();
         
@@ -100,7 +108,21 @@ class DbUsers {
        
     }
     
-    public function loginUser(string $pseudo, string $mdpPropose) {
+    public function recupererListeUsers():array {
+        $reponse = $this->bdd->query('SELECT id_membre FROM membres');
+        
+        $listeUsers = [] ;
+        
+        while ($donnees = $reponse->fetch()) {
+            $listeUsers[] = $this->recupererUser($donnees['id_membre']) ;
+        }
+        
+        $reponse->closeCursor();
+        
+        return $listeUsers ;
+    }
+    
+    public function loginUser(string $pseudo, string $mdpPropose):bool {
         if(!$this->existeUser($pseudo)) {
             return false ;
         } else {
@@ -121,7 +143,7 @@ class DbUsers {
 
             $donnees = $reponse2->fetch() ;
 
-            return $donnees == false ? false : true ;
+            return $donnees === false ? false : true ;
             
         }
     }
@@ -147,12 +169,12 @@ class DbUsers {
     
     }
     
-    //Delete
-    public function supprimerUser(string $pseudo):bool {
+    //DELETE
+    public function supprimerUser(int $id):bool {
 
-            $reponse = $this->bdd->prepare('DELETE FROM membres WHERE pseudo = ? ');
+            $reponse = $this->bdd->prepare('DELETE FROM membres WHERE id_membre = ? ');
             
-            if($reponse->execute(array($pseudo)) && $reponse->rowCount() == 1) {
+            if($reponse->execute(array($id)) && $reponse->rowCount() == 1) {
                 $reponse->closeCursor();
                 return true;
             } else {

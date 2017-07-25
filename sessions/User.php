@@ -13,7 +13,7 @@ class User {
     protected $email ;
     protected $adresse ;
     
-    function __construct($pseudo, $statut, $sel_hash, $mdp_hash, $email, $adresse, $identifiant = NULL, $dateInscription = NULL) {
+    function __construct(string $pseudo, string $statut, string $sel_hash, string $mdp_hash, string $email, string $adresse, $identifiant = NULL, $dateInscription = NULL) {
         $this->identifiant = $identifiant;
         $this->pseudo = $pseudo;
         $this->statut = $statut;
@@ -114,7 +114,6 @@ class User {
     public static function hashageMDP($mdp, $sel):string {
         $mdp_sale = $mdp.$sel ;
         $mdp_cuisine = hash('sha256', $mdp_sale) ;
-
         return $mdp_cuisine ;
     }
 
